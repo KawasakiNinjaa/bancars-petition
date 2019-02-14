@@ -1,4 +1,4 @@
-// this is where I place the canva-related shit
+// this is where I place the canvas-related shit
 
 //mousedown, mouseup, mousemove
 //get x/y coords
