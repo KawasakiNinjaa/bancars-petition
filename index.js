@@ -12,7 +12,7 @@ var hb = require("express-handlebars");
 app.engine("handlebars", hb());
 app.set("view engine", "handlebars");
 ///////////SECURITY
-app.use(cookieParser());
+//app.use(cookieParser());
 app.use(
   cookieSession({
     secret: `I'm always horny.`,
