@@ -4,16 +4,25 @@ var db = spicedPg(
   "postgres:postgres:postgres@localhost:5432/wintergreen-petition"
 );
 
-// THIS QUERY WON'T WORK BECAUSE I DON'T HAVE A TABLE CALLED CITIES
-// THIS QUERY IS JUST FOR DEMO PURPOSES
-module.exports.getAllCities = function getAllCities() {
-  return db.query("SELECT * FROM cities");
-};
+//use $ to avoid sql injections
 
-module.exports.addCity = function addCity(city, state, country) {
-  db.query("INSERT INTO cities (city, state, country) VALUES ($1, $2, $3)", [
-    city,
-    state,
-    country
+module.exports.submitSignature = function submitSignature(
+  firstName,
+  lastName,
+  signature
+) {
+  return db.query(
+    "INSERT INTO signatures (firstName, lastName, signature) VALUES ($1, $2,$3) RETURNING id",
+    [firstName, lastName, signature]
+  );
+};
+//shows signers
+module.exports.getSigners = function getSigners() {
+  return db.query("SELECT firstName, lastName FROM signatures");
+};
+//shows signature //
+module.exports.getSignature = function getSignature(mySignature) {
+  return db.query("SELECT signature FROM signatures WHERE id = $1", [
+    mySignature
   ]);
 };

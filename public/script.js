@@ -45,6 +45,7 @@
   });
   // when user hits button "sign", the actual signature in the canvas will be stored in the hidden input (and later sent and stored in the DB along firstName and lastName )
   signButton.addEventListener(`click`, () => {
-    signInput.value = canvas.toDataURL(); //
+    signInput.value = canvas.toDataURL();
+    console.log("signInput.value: ", signInput.value);
   });
 })();
