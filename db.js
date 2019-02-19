@@ -26,3 +26,15 @@ module.exports.getSignature = function getSignature(mySignature) {
     mySignature
   ]);
 };
+
+module.exports.saveInfo = function saveInfo(
+  firstName,
+  lastName,
+  eMail,
+  password
+) {
+  return db.query(
+    "INSERT INTO users (firstName, lastName, eMail, password) VALUES ($1, $2, $3, $4) RETURNING id",
+    [firstName || null, lastName || null, eMail || null, password || null]
+  );
+};

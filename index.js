@@ -7,12 +7,13 @@ const cookieSession = require("cookie-session");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const csurf = require("csurf");
+const bcrypt = require("./bcrypt.js");
 
 //handlebars//
 var hb = require("express-handlebars");
 app.engine("handlebars", hb());
 app.set("view engine", "handlebars");
-///////////SECURITY
+
 app.use(cookieParser());
 app.use(
   cookieSession({
@@ -87,7 +88,8 @@ app.get("/thanks", (req, res) => {
   return db.getSignature(mySignature).then(results => {
     res //and serves it to the page
       .render("thanks", {
-        layout: "main",
+        layout: "main", // if getSignature works, then() will run. if it does not, catch() will run and handle the error.
+
         signImg: results.rows
       })
       .catch(err => {
@@ -108,8 +110,8 @@ app.get("/signers", (req, res) => {
 
 //renders the registration template
 
-app.get("/register", (req, res) => {
-  res.render("register", {
+app.get("/registration", (req, res) => {
+  res.render("registration", {
     layout: "main"
   });
 });
@@ -122,14 +124,31 @@ app.get("/login", (req, res) => {
 });
 
 /*
+POST/registration
+- if INSERT fails re-render register template with an error message */
+app.post("/registration", (req, res) => {
+  let first = req.body.firstName;
+  let last = req.body.lastName;
+  let email = req.body.eMail;
+  let psswd = req.body.password;
 
-POST/register
-- first must hash the password using bcrypt
-- call function to insert first, last, email and hashed psswd into db
-- if INSERT is succesful, log the user in by puttin their id in req.session > res.redirect('/petition')
-- if INSERT fails re-render register template with an error message
-
-*/
-app.post("/register", (req, res) => {});
+  //first must hash the password using bcrypt
+  bcrypt.hashPassword(psswd).then(hashedPsswd => {
+    //- call function to insert first, last, email and hashed psswd into db
+    db.saveInfo(first, last, email, hashedPsswd)
+      .then(result => {
+        //if INSERT is succesful, log the user in by puttin their id in req.session
+        req.session.userID = result.rows[0].id;
+        res.redirect("/petition"); //and redirect to /petition
+      })
+      .catch(err => {
+        console.log("error catched: ", err);
+        res.render("registration", {
+          layout: "main",
+          somethingWrong: "somethingWrong" // if INSERT fails, re-render registration template with an error message
+        });
+      });
+  });
+});
 
 app.listen(8080, () => console.log("say something i'm listening"));
