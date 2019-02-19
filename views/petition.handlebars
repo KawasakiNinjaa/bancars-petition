@@ -10,9 +10,10 @@
 {{/error}}
 
 <form method= "POST">
+<!--Part 3: change template to no longer allow users input first and last name -->
 
-    <input type="text" name="firstName" value={{firstName}}>
-    <input type="text" name="lastName" value={{lastName}}>
+<!--<input type="text" name="firstName" value={{firstName}}>
+    <input type="text" name="lastName" value={{lastName}}> -->
     <input type="hidden" name= "signature" id="signInput">
     <canvas id="canvas" width="400" height="150"></canvas>
     <input name='_csrf' type='hidden' value='{{csrfToken}}'>

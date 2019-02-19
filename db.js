@@ -26,7 +26,7 @@ module.exports.getSignature = function getSignature(mySignature) {
     mySignature
   ]);
 };
-
+//inserts data into DB
 module.exports.saveInfo = function saveInfo(
   firstName,
   lastName,
@@ -37,4 +37,13 @@ module.exports.saveInfo = function saveInfo(
     "INSERT INTO users (firstName, lastName, eMail, password) VALUES ($1, $2, $3, $4) RETURNING id",
     [firstName || null, lastName || null, eMail || null, password || null]
   );
+};
+
+//gets user info by the submitted email address
+module.exports.getUserInfo = function getUserInfo(email) {
+  return db.query(`SELECT password, id FROM users WHERE email = $1`, [email]);
+};
+
+module.exports.getSigID = function getSigID(userID) {
+  return db.query("SELECT id FROM signatures WHERE id= $1", [userID]);
 };

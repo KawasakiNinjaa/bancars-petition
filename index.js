@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 const csurf = require("csurf");
 const bcrypt = require("./bcrypt.js");
 
-//handlebars//
+//handlebars
 var hb = require("express-handlebars");
 app.engine("handlebars", hb());
 app.set("view engine", "handlebars");
@@ -48,10 +48,8 @@ app.get("/petition", (req, res) => {
     layout: "main"
   });
 });
-/*  POST/petition.
-- needs all form values to be entered. if not, send error message
-- insert data into table into signatures, set a cookie, redirect to thanks page
-*/
+
+// POST/petition
 app.post(`/petition`, (req, res) => {
   if (!req.body.firstName || !req.body.lastName || !req.body.signature) {
     console.log("req.body: ", req.body);
@@ -109,7 +107,6 @@ app.get("/signers", (req, res) => {
 });
 
 //renders the registration template
-
 app.get("/registration", (req, res) => {
   res.render("registration", {
     layout: "main"
@@ -123,9 +120,7 @@ app.get("/login", (req, res) => {
   });
 });
 
-/*
-POST/registration
-- if INSERT fails re-render register template with an error message */
+//POST/registration
 app.post("/registration", (req, res) => {
   let first = req.body.firstName;
   let last = req.body.lastName;
@@ -148,6 +143,30 @@ app.post("/registration", (req, res) => {
           somethingWrong: "somethingWrong" // if INSERT fails, re-render registration template with an error message
         });
       });
+  });
+});
+
+//POST/login THIS DOES NOT WORK YET
+app.post("/login", (req, res) => {
+  let userEmail = req.body.eMail;
+  let userPsswd = req.body.password;
+  //query to get user info by the submitted email address
+  db.getUserInfo(userEmail).then(results => {
+    let user = results.rows[0];
+    let userID = result.rows[0].id; //compare passwords
+    console.log("userID: ", userID);
+    bcrypt.checkPassword(userPsswd, user.password).then(itsaMatch => {
+      if (itsaMatch) {
+        req.session.userID = userID; // if the comparison returns true, set cookie
+        res.redirect("/petition"); // and redirect to petition
+      } else {
+        res.render("login", {
+          //if the comparison returns false, re-render login template
+          layout: "main",
+          somethingWrong: "somethingWrong" //with an error message.
+        });
+      }
+    });
   });
 });
 
