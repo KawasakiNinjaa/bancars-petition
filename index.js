@@ -106,4 +106,30 @@ app.get("/signers", (req, res) => {
   });
 });
 
+//renders the registration template
+
+app.get("/register", (req, res) => {
+  res.render("register", {
+    layout: "main"
+  });
+});
+
+//renders the login template
+app.get("/login", (req, res) => {
+  res.render("login", {
+    layout: "main"
+  });
+});
+
+/*
+
+POST/register
+- first must hash the password using bcrypt
+- call function to insert first, last, email and hashed psswd into db
+- if INSERT is succesful, log the user in by puttin their id in req.session > res.redirect('/petition')
+- if INSERT fails re-render register template with an error message
+
+*/
+app.post("/register", (req, res) => {});
+
 app.listen(8080, () => console.log("say something i'm listening"));
