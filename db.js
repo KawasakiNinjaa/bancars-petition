@@ -49,3 +49,10 @@ module.exports.getUserInfo = function getUserInfo(userEmail) {
 module.exports.getSigID = function getSigID(userID) {
   return db.query("SELECT id FROM signatures WHERE id= $1", [userID]);
 };
+
+module.exports.profile = function saveProfileInfo(age, city, url, user_id) {
+  return db.query(
+    "INSERT INTO user_profiles(age, city, url, user_id) VALUES ($1, $2, $3, $4)",
+    [age, city, url, user_id]
+  );
+};

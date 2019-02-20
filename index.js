@@ -123,6 +123,12 @@ app.get("/login", (req, res) => {
   });
 });
 
+app.get("/profile", (req, res) => {
+  res.render("profile", {
+    layout: "main"
+  });
+});
+
 //POST/registration
 app.post("/registration", (req, res) => {
   let first = req.body.firstName;
@@ -155,12 +161,13 @@ app.post("/login", (req, res) => {
   let userEmail = req.body.eMail; //db query to get user info with email
   db.getUserInfo(userEmail)
     .then(results => {
-      let psswdOnDb = results.rows[0].password; //compare passwords
+      let psswdOnDb = results.rows[0].password;
+      let userID = results.rows[0].id; //compare passwords
       bcrypt.checkPassword(userPsswd, psswdOnDb).then(itsAMatch => {
         if (itsAMatch) {
           //if checkPassword is successful, set cookie
-          req.session.userID = results.rows[0].id;
-          db.getSigID(req.session.userID); // db query to get the signature id
+          req.session.userID = userID;
+          db.getSigID(userID); // db query to get the signature id
           res.redirect("/petition"); // and redirect to petition
         } else {
           res.render("login", {
@@ -180,4 +187,21 @@ app.post("/login", (req, res) => {
     });
 });
 
+app.post("/profile", (req, res) => {
+  let userAge = req.body.age;
+  let userCity = req.body.city;
+  let userURL = req.body.homepage;
+  let userID = req.session.userID;
+  db.saveProfileInfo(userAge, userCity, userURL, userID)
+    .then(() => {
+      res.redirect("/thanks"); //REDIRECT TO THANKS OR PETITION???
+    })
+    .catch(err => {
+      console.log("Error: ", err);
+      res.render("profile", {
+        layout: "main",
+        somethingWrong: "somethingWrong"
+      });
+    });
+});
 app.listen(8080, () => console.log("say something i'm listening"));
