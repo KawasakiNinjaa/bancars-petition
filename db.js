@@ -40,8 +40,10 @@ module.exports.saveInfo = function saveInfo(
 };
 
 //gets user info by the submitted email address
-module.exports.getUserInfo = function getUserInfo(email) {
-  return db.query(`SELECT password, id FROM users WHERE email = $1`, [email]);
+module.exports.getUserInfo = function getUserInfo(userEmail) {
+  return db.query(`SELECT password, id FROM users WHERE email = $1`, [
+    userEmail
+  ]);
 };
 
 module.exports.getSigID = function getSigID(userID) {

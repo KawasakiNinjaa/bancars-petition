@@ -51,7 +51,10 @@ app.get("/petition", (req, res) => {
 
 // POST/petition
 app.post(`/petition`, (req, res) => {
-  if (!req.body.firstName || !req.body.lastName || !req.body.signature) {
+  if (
+    // !req.body.firstName || !req.body.lastName ||-- PART 3: Only use signature from req.body
+    !req.body.signature
+  ) {
     console.log("req.body: ", req.body);
     res.render("petition", {
       layout: "main",
@@ -67,8 +70,8 @@ app.post(`/petition`, (req, res) => {
       )
       .then(results => {
         //set cookies, then redirect to thanks page.
-        req.session.firstName = req.body.firstName;
-        req.session.lastName = req.body.lastName;
+        // req.session.firstName = req.body.firstName;n PART 3: only use req.body.signature
+        // req.session.lastName = req.body.lastName;
         req.session.signerID = results.rows[0].id;
         //console.log("cookieSession: ", req.session);
         res.redirect("/thanks");
@@ -148,26 +151,33 @@ app.post("/registration", (req, res) => {
 
 //POST/login THIS DOES NOT WORK YET
 app.post("/login", (req, res) => {
-  let userEmail = req.body.eMail;
   let userPsswd = req.body.password;
-  //query to get user info by the submitted email address
-  db.getUserInfo(userEmail).then(results => {
-    let user = results.rows[0];
-    let userID = result.rows[0].id; //compare passwords
-    console.log("userID: ", userID);
-    bcrypt.checkPassword(userPsswd, user.password).then(itsaMatch => {
-      if (itsaMatch) {
-        req.session.userID = userID; // if the comparison returns true, set cookie
-        res.redirect("/petition"); // and redirect to petition
-      } else {
-        res.render("login", {
-          //if the comparison returns false, re-render login template
-          layout: "main",
-          somethingWrong: "somethingWrong" //with an error message.
-        });
-      }
+  let userEmail = req.body.eMail; //db query to get user info with email
+  db.getUserInfo(userEmail)
+    .then(results => {
+      let psswdOnDb = results.rows[0].password; //compare passwords
+      bcrypt.checkPassword(userPsswd, psswdOnDb).then(itsAMatch => {
+        if (itsAMatch) {
+          //if checkPassword is successful, set cookie
+          req.session.userID = results.rows[0].id;
+          db.getSigID(req.session.userID); // db query to get the signature id
+          res.redirect("/petition"); // and redirect to petition
+        } else {
+          res.render("login", {
+            // if checkPassword is unsucessful, re-render login wuth err
+            layout: "main",
+            somethingWrong: "somethingWrong"
+          });
+        }
+      });
+    })
+    .catch(err => {
+      //if there is no matching Email, re-render login with an error message.
+      res.render("login", {
+        layout: "main",
+        somethingWrong: "somethingWrong"
+      });
     });
-  });
 });
 
 app.listen(8080, () => console.log("say something i'm listening"));
