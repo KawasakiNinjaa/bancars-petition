@@ -64,9 +64,10 @@ app.post(`/petition`, (req, res) => {
     return db
       .submitSignature(
         //insert data into table signatures.
-        req.body.firstName,
-        req.body.lastName,
-        req.body.signature
+        // req.body.firstName,
+        // req.body.lastName,
+        req.body.signature,
+        req.session.userID
       )
       .then(results => {
         //set cookies, then redirect to thanks page.
@@ -129,6 +130,8 @@ app.get("/profile", (req, res) => {
   });
 });
 
+app.get("/signers:city");
+
 //POST/registration
 app.post("/registration", (req, res) => {
   let first = req.body.firstName;
@@ -143,7 +146,7 @@ app.post("/registration", (req, res) => {
       .then(result => {
         //if INSERT is succesful, log the user in by puttin their id in req.session
         req.session.userID = result.rows[0].id;
-        res.redirect("/petition"); //and redirect to /petition
+        res.redirect("/profile"); //and redirect to /petition //part4: redirect to /profile
       })
       .catch(err => {
         console.log("error catched: ", err);
@@ -155,11 +158,11 @@ app.post("/registration", (req, res) => {
   });
 });
 
-//POST/login THIS DOES NOT WORK YET
+//POST/login
 app.post("/login", (req, res) => {
   let userPsswd = req.body.password;
-  let userEmail = req.body.eMail; //db query to get user info with email
-  db.getUserInfo(userEmail)
+  let userEmail = req.body.eMail;
+  db.getUserInfobyEmail(userEmail) //db query to get user info with email
     .then(results => {
       let psswdOnDb = results.rows[0].password;
       let userID = results.rows[0].id; //compare passwords
@@ -167,11 +170,17 @@ app.post("/login", (req, res) => {
         if (itsAMatch) {
           //if checkPassword is successful, set cookie
           req.session.userID = userID;
-          db.getSigID(userID); // db query to get the signature id
+          req.session.sigID = results.rows[0].sigid;
+          //           ```if (!results.rows[0].sigID) {
+          //     res.redirect("/petition")
+          // } else {
+          //     res.redirect('/thanks')
+          // }```
+          //db.getSigID(userID); // db query to get the signature id //part4. remove query to get signatur ID
           res.redirect("/petition"); // and redirect to petition
         } else {
           res.render("login", {
-            // if checkPassword is unsucessful, re-render login wuth err
+            // if checkPassword is unsucessful, re-render login with err
             layout: "main",
             somethingWrong: "somethingWrong"
           });
@@ -179,6 +188,7 @@ app.post("/login", (req, res) => {
       });
     })
     .catch(err => {
+      console.log("err; ", err);
       //if there is no matching Email, re-render login with an error message.
       res.render("login", {
         layout: "main",

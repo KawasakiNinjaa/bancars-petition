@@ -6,14 +6,10 @@ var db = spicedPg(
 
 //use $ to avoid sql injections
 
-module.exports.submitSignature = function submitSignature(
-  firstName,
-  lastName,
-  signature
-) {
+module.exports.submitSignature = function submitSignature(signature, userID) {
   return db.query(
-    "INSERT INTO signatures (firstName, lastName, signature) VALUES ($1, $2,$3) RETURNING id",
-    [firstName, lastName, signature]
+    "INSERT INTO signatures (signature, userID) VALUES ($1, $2) RETURNING id",
+    [signature, userID]
   );
 };
 //shows signers
@@ -40,19 +36,27 @@ module.exports.saveInfo = function saveInfo(
 };
 
 //gets user info by the submitted email address
-module.exports.getUserInfo = function getUserInfo(userEmail) {
-  return db.query(`SELECT password, id FROM users WHERE email = $1`, [
-    userEmail
-  ]);
+//part4. modify this query to get data from signatures table
+module.exports.getUserInfobyEmail = function getUserInfobyEmail(userEmail) {
+  return db.query(
+    `SELECT firstname, lastname, password, users.id AS userid, signatures.id AS sigid FROM users
+      LEFT JOIN signatures ON users.id = signatures.userid WHERE email = $1`,
+    [userEmail]
+  );
 };
 
 module.exports.getSigID = function getSigID(userID) {
   return db.query("SELECT id FROM signatures WHERE id= $1", [userID]);
 };
 
-module.exports.profile = function saveProfileInfo(age, city, url, user_id) {
+module.exports.profile = function saveProfileInfo(age, city, url, userid) {
   return db.query(
-    "INSERT INTO user_profiles(age, city, url, user_id) VALUES ($1, $2, $3, $4)",
-    [age, city, url, user_id]
+    "INSERT INTO user_profiles(age, city, url, userid) VALUES ($1, $2, $3, $4)",
+    [age, city, url, userid]
   );
 };
+
+// module.exports.getByCity = function getByCity(city) {
+//   return db.query("SELECT fir);
+
+// };
