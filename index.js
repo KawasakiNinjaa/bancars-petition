@@ -214,4 +214,6 @@ app.post("/profile", (req, res) => {
       });
     });
 });
-app.listen(8080, () => console.log("say something i'm listening"));
+app.listen(process.env.PORT || 8080, () =>
+  console.log("say something i'm listening")
+);

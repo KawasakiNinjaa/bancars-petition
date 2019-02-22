@@ -1,7 +1,8 @@
 var spicedPg = require("spiced-pg");
 
 var db = spicedPg(
-  "postgres:postgres:postgres@localhost:5432/wintergreen-petition"
+  process.env.DATABASE_URL ||
+    "postgres:postgres:postgres@localhost:5432/wintergreen-petition"
 );
 
 //use $ to avoid sql injections
