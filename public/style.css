@@ -5,11 +5,41 @@
   overflow: hidden;
 }
 
+#bg {
+  z-index: -999;
+
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+}
+#bg img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  min-width: 50%;
+  min-height: 50%;
+}
+
 body {
-  background: DeepPink;
+  font-family: "Quantico", sans-serif;
+
   display: flex;
   flex-direction: column;
   text-align: center;
+}
+
+h1 {
+  font-size: 100px;
+  font-weight: bold;
+}
+
+#description {
+  font-size: 30px;
 }
 form {
 }
@@ -17,7 +47,9 @@ input {
 }
 
 canvas {
+  z-index: 10;
   background: white;
+  border: 1px solid blue;
 }
 button {
   position: relative;

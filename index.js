@@ -42,6 +42,10 @@ app.use(express.static("./public"));
 
 //app.get("/", (req, res) => res.redirect("/petition")); I want to redirect from 8080 to 8080/petition
 
+app.get("/", (req, res) => {
+  res.redirect("registration");
+});
+
 // renders petition main page
 app.get("/petition", (req, res) => {
   res.render("petition", {
@@ -168,16 +172,18 @@ app.post("/login", (req, res) => {
       let userID = results.rows[0].id; //compare passwords
       bcrypt.checkPassword(userPsswd, psswdOnDb).then(itsAMatch => {
         if (itsAMatch) {
-          //if checkPassword is successful, set cookie
           req.session.userID = userID;
           req.session.sigID = results.rows[0].sigid;
-          //           ```if (!results.rows[0].sigID) {
-          //     res.redirect("/petition")
-          // } else {
-          //     res.redirect('/thanks')
-          // }```
+          db.getSigID(userID).then(results => {});
+          //if checkPassword is successful, set cookie
+
+          if (!results.rows[0].sigid) {
+            res.redirect("/petition");
+          } else {
+            res.redirect("/thanks");
+          }
           //db.getSigID(userID); // db query to get the signature id //part4. remove query to get signatur ID
-          res.redirect("/petition"); // and redirect to petition
+          //res.redirect("/petition"); // and redirect to petition
         } else {
           res.render("login", {
             // if checkPassword is unsucessful, re-render login with err
@@ -204,7 +210,7 @@ app.post("/profile", (req, res) => {
   let userID = req.session.userID;
   db.saveProfileInfo(userAge, userCity, userURL, userID)
     .then(() => {
-      res.redirect("/thanks"); //REDIRECT TO THANKS OR PETITION???
+      res.redirect("/petition"); //REDIRECT TO THANKS OR PETITION???
     })
     .catch(err => {
       console.log("Error: ", err);

@@ -14,8 +14,18 @@ module.exports.submitSignature = function submitSignature(signature, userID) {
   );
 };
 //shows signers
+//modified in Part4
+// module.exports.getSigners = function getSigners() {
+//   return db.query("SELECT firstName, lastName FROM signatures");
+// };
+
 module.exports.getSigners = function getSigners() {
-  return db.query("SELECT firstName, lastName FROM signatures");
+  return db.query(`SELECT users.firstname,  users.lastname, user_profiles.age, user_profiles.city
+                    FROM signatures
+                    JOIN user_profiles
+                    ON signatures.userid = user_profiles.userid
+                    JOIN users
+                    ON signatures.userid = users.id`);
 };
 //shows signature //
 module.exports.getSignature = function getSignature(mySignature) {
@@ -50,14 +60,27 @@ module.exports.getSigID = function getSigID(userID) {
   return db.query("SELECT id FROM signatures WHERE id= $1", [userID]);
 };
 
-module.exports.profile = function saveProfileInfo(age, city, url, userid) {
+module.exports.saveProfileInfo = function saveProfileInfo(
+  age,
+  city,
+  url,
+  userid
+) {
   return db.query(
     "INSERT INTO user_profiles(age, city, url, userid) VALUES ($1, $2, $3, $4)",
     [age, city, url, userid]
   );
 };
 
-// module.exports.getByCity = function getByCity(city) {
-//   return db.query("SELECT fir);
-
-// };
+module.exports.getByCity = function getByCity(city) {
+  return db.query(
+    `SELECT users.firstname,  users.lastname, user_profiles.age, user_profiles.city
+                    FROM signatures
+                    JOIN user_profiles
+                    ON signatures.userid = user_profiles.userid
+                    JOIN users
+                    ON signatures.userid = users.id
+                    WHERE city = $1`,
+    [city]
+  );
+};
