@@ -84,3 +84,14 @@ module.exports.getByCity = function getByCity(city) {
     [city]
   );
 };
+module.exports.getProfileInfo = function getProfileInfo(id) {
+  let q = `
+    SELECT users.firstname, users.lastname, users.email, user_profiles.age, user_profiles.city, user_profiles.url
+    FROM users
+    JOIN user_profiles
+    ON user_profiles.userid = users.id
+    WHERE users.id = $1`;
+  let params = [id];
+
+  return db.query(q, params);
+};

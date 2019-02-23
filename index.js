@@ -45,12 +45,141 @@ app.use(express.static("./public"));
 app.get("/", (req, res) => {
   res.redirect("registration");
 });
+//renders the login template
+app.get("/login", (req, res) => {
+  res.render("login", {
+    layout: "main"
+  });
+});
+
+//POST/login
+app.post("/login", (req, res) => {
+  let userPsswd = req.body.password;
+  let userEmail = req.body.eMail;
+  db.getUserInfobyEmail(userEmail) //db query to get user info with email
+    .then(results => {
+      console.log("results: ", results);
+      let psswdOnDb = results.rows[0].password;
+      let userID = results.rows[0].userid; //compare passwords
+      bcrypt.checkPassword(userPsswd, psswdOnDb).then(itsAMatch => {
+        if (itsAMatch) {
+          req.session.userID = userID;
+          req.session.sigID = results.rows[0].sigid;
+          db.getSigID(userID).then(results => {});
+          //if checkPassword is successful, set cookie
+
+          if (!results.rows[0].sigid) {
+            res.redirect("/petition");
+          } else {
+            res.redirect("/thanks");
+          }
+          //db.getSigID(userID); // db query to get the signature id //part4. remove query to get signatur ID
+          //res.redirect("/petition"); // and redirect to petition
+        } else {
+          res.render("login", {
+            // if checkPassword is unsucessful, re-render login with err
+            layout: "main",
+            somethingWrong: "somethingWrong"
+          });
+        }
+      });
+    })
+    .catch(err => {
+      console.log("err; ", err);
+      //if there is no matching Email, re-render login with an error message.
+      res.render("login", {
+        layout: "main",
+        somethingWrong: "somethingWrong"
+      });
+    });
+});
+
+//renders the registration template
+app.get("/registration", (req, res) => {
+  res.render("registration", {
+    layout: "main"
+  });
+});
+
+//POST/registration
+app.post("/registration", (req, res) => {
+  let first = req.body.firstName;
+  let last = req.body.lastName;
+  let email = req.body.eMail;
+  let psswd = req.body.password;
+
+  //first must hash the password using bcrypt
+  bcrypt.hashPassword(psswd).then(hashedPsswd => {
+    //- call function to insert first, last, email and hashed psswd into db
+    db.saveInfo(first, last, email, hashedPsswd)
+      .then(result => {
+        //if INSERT is succesful, log the user in by puttin their id in req.session
+        req.session.userID = result.rows[0].id;
+        res.redirect("/profile"); //and redirect to /petition //part4: redirect to /profile
+      })
+      .catch(err => {
+        console.log("error catched: ", err);
+        res.render("registration", {
+          layout: "main",
+          somethingWrong: "somethingWrong" // if INSERT fails, re-render registration template with an error message
+        });
+      });
+  });
+});
+//renders profile form
+app.get("/profile", (req, res) => {
+  res.render("profile", {
+    layout: "main"
+  });
+});
+//saves data to db, later can be edited
+app.post("/profile", (req, res) => {
+  let userAge = req.body.age;
+  let userCity = req.body.city;
+  let userURL = req.body.url;
+  let userID = req.session.userID;
+  db.saveProfileInfo(userAge, userCity, userURL, userID)
+    .then(() => {
+      res.redirect("/petition"); //REDIRECT TO THANKS OR PETITION???
+    })
+    .catch(err => {
+      console.log("Error: ", err);
+      res.render("profile", {
+        layout: "main",
+        somethingWrong: "somethingWrong"
+      });
+    });
+});
+app.listen(process.env.PORT || 8080, () =>
+  console.log("say something i'm listening")
+);
 
 // renders petition main page
 app.get("/petition", (req, res) => {
   res.render("petition", {
     layout: "main"
   });
+});
+
+// pre-populates the input fields with data from the logged-in user
+app.get("/profile/edit", (req, res) => {
+  return db
+    .getProfileInfo(req.session.userID)
+    .then(results => {
+      console.log("results: ", results);
+      res.render("edit", {
+        layout: "main",
+        firstname: results.rows[0].firstname,
+        lastname: results.rows[0].lastname,
+        age: results.rows[0].age,
+        email: results.rows[0].email,
+        city: results.rows[0].city,
+        url: results.rows[0].url
+      });
+    })
+    .catch(err => {
+      console.log(err);
+    });
 });
 
 // POST/petition
@@ -114,112 +243,11 @@ app.get("/signers", (req, res) => {
   });
 });
 
-//renders the registration template
-app.get("/registration", (req, res) => {
-  res.render("registration", {
-    layout: "main"
-  });
-});
-
-//renders the login template
-app.get("/login", (req, res) => {
-  res.render("login", {
-    layout: "main"
-  });
-});
-
-app.get("/profile", (req, res) => {
-  res.render("profile", {
-    layout: "main"
-  });
-});
-
-app.get("/signers:city");
-
-//POST/registration
-app.post("/registration", (req, res) => {
-  let first = req.body.firstName;
-  let last = req.body.lastName;
-  let email = req.body.eMail;
-  let psswd = req.body.password;
-
-  //first must hash the password using bcrypt
-  bcrypt.hashPassword(psswd).then(hashedPsswd => {
-    //- call function to insert first, last, email and hashed psswd into db
-    db.saveInfo(first, last, email, hashedPsswd)
-      .then(result => {
-        //if INSERT is succesful, log the user in by puttin their id in req.session
-        req.session.userID = result.rows[0].id;
-        res.redirect("/profile"); //and redirect to /petition //part4: redirect to /profile
-      })
-      .catch(err => {
-        console.log("error catched: ", err);
-        res.render("registration", {
-          layout: "main",
-          somethingWrong: "somethingWrong" // if INSERT fails, re-render registration template with an error message
-        });
-      });
-  });
-});
-
-//POST/login
-app.post("/login", (req, res) => {
-  let userPsswd = req.body.password;
-  let userEmail = req.body.eMail;
-  db.getUserInfobyEmail(userEmail) //db query to get user info with email
-    .then(results => {
-      let psswdOnDb = results.rows[0].password;
-      let userID = results.rows[0].id; //compare passwords
-      bcrypt.checkPassword(userPsswd, psswdOnDb).then(itsAMatch => {
-        if (itsAMatch) {
-          req.session.userID = userID;
-          req.session.sigID = results.rows[0].sigid;
-          db.getSigID(userID).then(results => {});
-          //if checkPassword is successful, set cookie
-
-          if (!results.rows[0].sigid) {
-            res.redirect("/petition");
-          } else {
-            res.redirect("/thanks");
-          }
-          //db.getSigID(userID); // db query to get the signature id //part4. remove query to get signatur ID
-          //res.redirect("/petition"); // and redirect to petition
-        } else {
-          res.render("login", {
-            // if checkPassword is unsucessful, re-render login with err
-            layout: "main",
-            somethingWrong: "somethingWrong"
-          });
-        }
-      });
-    })
-    .catch(err => {
-      console.log("err; ", err);
-      //if there is no matching Email, re-render login with an error message.
-      res.render("login", {
-        layout: "main",
-        somethingWrong: "somethingWrong"
-      });
+app.get("/signers/:city", (req, res) => {
+  db.getByCity(req.params.city).then(results => {
+    res.render("signers", {
+      layout: "main",
+      nameList: results.rows
     });
+  });
 });
-
-app.post("/profile", (req, res) => {
-  let userAge = req.body.age;
-  let userCity = req.body.city;
-  let userURL = req.body.homepage;
-  let userID = req.session.userID;
-  db.saveProfileInfo(userAge, userCity, userURL, userID)
-    .then(() => {
-      res.redirect("/petition"); //REDIRECT TO THANKS OR PETITION???
-    })
-    .catch(err => {
-      console.log("Error: ", err);
-      res.render("profile", {
-        layout: "main",
-        somethingWrong: "somethingWrong"
-      });
-    });
-});
-app.listen(process.env.PORT || 8080, () =>
-  console.log("say something i'm listening")
-);

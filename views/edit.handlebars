@@ -1,0 +1,21 @@
+
+
+    <h3>Here you can edit your profile</h3>
+
+    <form method="POST">
+
+
+
+
+            <input type="text" name="firstname" placeholder="firstname" value = {{firstName}}>
+            <input type="text" name="lastname" placeholder="lastname" value = {{lastName}}>
+            <input type="email" name="email" placeholder="email" required value = {{email}}>
+            <input type="password" name="password" placeholder="password">
+            <input type="age" name="age" placeholder="Age" value = {{age}}>
+            <input type="city" name="city" placeholder="City" value = {{city}}>
+            <input type="url" name="url" placeholder="Website" value = {{url}}>
+            <input type= "hidden" name="_csrf" value="{{csrfToken}}">
+            <button>SUBMIT</button>
+
+
+    </form>
