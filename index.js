@@ -154,13 +154,6 @@ app.listen(process.env.PORT || 8080, () =>
   console.log("say something i'm listening")
 );
 
-// renders petition main page
-app.get("/petition", (req, res) => {
-  res.render("petition", {
-    layout: "main"
-  });
-});
-
 // pre-populates the input fields with data from the logged-in user
 app.get("/profile/edit", (req, res) => {
   return db
@@ -180,6 +173,59 @@ app.get("/profile/edit", (req, res) => {
     .catch(err => {
       console.log(err);
     });
+});
+// allows users update their profile
+app.post("/profile/edit", (req, res) => {
+  let userName = req.body.firstname;
+  let userLast = req.body.lastname;
+  let userEmail = req.body.email;
+  let userPsswd = req.body.password;
+  let sessionID = req.session.userID;
+  let userAge = req.body.age;
+  let userCity = req.body.city;
+  let userURL = req.body.url;
+
+  if (!userPsswd) {
+    db.updateWithNoPass(userName, userLast, userEmail, sessionID)
+      .then(() => {
+        db.update_user_profiles(userAge, userCity, userURL, sessionID);
+      })
+      .then(results => {
+        res.redirect("/thanks");
+      })
+      .catch(err => {
+        console.log(err);
+        res.render("edit", {
+          layout: "main",
+          somethingWrong: "somethingWrong"
+        });
+      });
+  } else {
+    bcrypt.hashPassword(userPsswd).then(hashedPsswd => {
+      console.log("hashedPsswd: ", hashedPsswd);
+      db.updateWithPass(userName, userLast, userEmail, hashedPsswd, sessionID)
+        .then(() => {
+          db.update_user_profiles(userAge, userCity, userURL, sessionID);
+        })
+        .then(() => {
+          res.redirect("/thanks");
+        })
+        .catch(err => {
+          console.log("error in updateWithPass: ", err);
+          res.render("edit", {
+            layout: "main",
+            somethingWrong: "somethingWrong"
+          });
+        });
+    });
+  }
+});
+
+// renders petition main page
+app.get("/petition", (req, res) => {
+  res.render("petition", {
+    layout: "main"
+  });
 });
 
 // POST/petition
