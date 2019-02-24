@@ -29,7 +29,7 @@ module.exports.getSigners = function getSigners() {
 };
 //shows signature //
 module.exports.getSignature = function getSignature(mySignature) {
-  return db.query("SELECT signature FROM signatures WHERE id = $1", [
+  return db.query("SELECT signature FROM signatures WHERE userid = $1", [
     mySignature
   ]);
 };
@@ -138,4 +138,8 @@ module.exports.update_user_profiles = function update_user_profiles(
         DO UPDATE SET age = $1, city = $2, url = $3, userid = $4`,
     [userAge, userCity, userURL, sessionID]
   );
+};
+
+module.exports.deleteSig = function deleteSig(userID) {
+  return db.query(`DELETE FROM signatures WHERE userid = $1`, [userID]);
 };

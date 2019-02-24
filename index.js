@@ -264,7 +264,7 @@ app.post(`/petition`, (req, res) => {
 
 //renders thanks page
 app.get("/thanks", (req, res) => {
-  let mySignature = req.session.signerID;
+  let mySignature = req.session.userID;
   //uses cookie to retrieve signature image from the database
   return db.getSignature(mySignature).then(results => {
     res //and serves it to the page
@@ -277,6 +277,18 @@ app.get("/thanks", (req, res) => {
         console.log(err);
       });
   });
+});
+
+app.post("/thanks", (req, res) => {
+  db.deleteSig(req.session.userID)
+    .then(results => {
+      !req.session.sigID;
+      res.redirect("/petition");
+    })
+    .catch(err => {
+      console.log("ERR", err);
+      res.render("/thanks");
+    });
 });
 
 //renders signers page

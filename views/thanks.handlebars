@@ -5,3 +5,22 @@
 <img src={{signature}} alt="" id="signImg">
 
 {{/signImg}}
+
+<p> All
+         <a href="/thankyou/signees">
+             these people
+         </a>
+also hate cars.     </p>
+
+<p> You can edit your profile info
+         <a href="/profile/edit">
+            right here.
+         </a>
+     </p>
+
+ <div id="deleteSig">
+    <form method="POST">
+        <button name="button">Or you can change your mind.</button>
+        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    </form>
+</div>
