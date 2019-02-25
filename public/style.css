@@ -51,17 +51,23 @@ canvas {
   background: white;
   border: 1px solid blue;
 }
+
 button {
-  position: relative;
   display: inline-block;
-  font-size: 22px;
-  padding: 20px 60px;
-  color: rebeccapurple;
-  margin: 20px 10px 10px;
-  border-radius: 6px;
-  text-align: center;
-  transition: top 0.01s linear;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+  margin: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 10px 10px 10px 10px;
+  background-color: lightblue;
+  text-shadow: -1px -1px black, 1px 1px white;
+  color: DeepPink;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -o-border-radius: 7px;
+  border-radius: 7px;
+  border-color: rebeccapurple;
+  box-shadow: 0 0.2em gray;
+  cursor: pointer;
 }
 
 h2 {
@@ -73,4 +79,26 @@ h2 {
   height: 150px;
   position: relative;
   left: 40%;
+}
+
+p {
+  font-size: 25px;
+}
+
+#logout {
+  display: inline-block;
+  margin: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 10px 10px 10px 10px;
+  background-color: lightblue;
+  text-shadow: -1px -1px black, 1px 1px white;
+  color: DeepPink;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -o-border-radius: 7px;
+  border-radius: 7px;
+  border-color: rebeccapurple;
+  box-shadow: 0 0.2em gray;
+  cursor: pointer;
 }

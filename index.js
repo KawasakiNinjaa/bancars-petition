@@ -309,3 +309,8 @@ app.get("/signers/:city", (req, res) => {
     });
   });
 });
+
+app.get("/logout", (req, res) => {
+  req.session = null;
+  res.redirect("/registration");
+});

@@ -6,18 +6,19 @@
     <h2 class="error"> Ooops! something went wrong! </h2>
     {{/if}}
 
+
     <form method="POST">
 
 
 
 
-            <input type="text" name="firstname" placeholder="firstname" value = {{firstname}}>
-            <input type="text" name="lastname" placeholder="lastname" value = {{lastname}}>
-            <input type="email" name="email" placeholder="email" required value = {{email}}>
-            <input type="password" name="password" placeholder="password">
-            <input type="age" name="age" placeholder="age" value = {{age}}>
-            <input type="city" name="city" placeholder="City" value = {{city}}>
-            <input type="url" name="url" placeholder="homepage" value = {{url}}>
+            <input type="text" name="firstname" placeholder="firstname" value = {{firstname}}> <br><br>
+            <input type="text" name="lastname" placeholder="lastname" value = {{lastname}}> <br> <br>
+            <input type="email" name="email" placeholder="email" required value = {{email}}> <br> <br>
+            <input type="password" name="password" placeholder="password"> <br> <br>
+            <input type="age" name="age" placeholder="age" value = {{age}}> <br> <br>
+            <input type="city" name="city" placeholder="City" value = {{city}}> <br> <br>
+            <input type="url" name="url" placeholder="homepage" value = {{url}}> <br> <br>
             <input type= "hidden" name="_csrf" value="{{csrfToken}}">
             <button>SUBMIT</button>
 
